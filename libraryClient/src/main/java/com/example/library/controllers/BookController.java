@@ -48,7 +48,9 @@ public class BookController {
 		{
 			List<Book> books = bookService.getAll();
 			List<BookDto> bookDtos = new ArrayList<BookDto>();
-			for (Book book : books) {
+			for (Object book : books) {
+				System.out.println(book.getClass());
+				System.out.println(book);
 				bookDtos.add(modelMapper.map(book, BookDto.class));
 			}
 						
