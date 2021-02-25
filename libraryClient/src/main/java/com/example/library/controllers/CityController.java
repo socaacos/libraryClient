@@ -1,9 +1,7 @@
 package com.example.library.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.library.dtos.CityDto;
-import com.example.library.entities.City;
 import com.example.library.services.CityService;
 
 @RestController
@@ -27,50 +24,34 @@ public class CityController {
 	@Autowired
 	CityService cityService;
 	
-	@Autowired
-	ModelMapper modelMapper;
-	
 	@GetMapping()
 	@ResponseBody
 	public List<CityDto> getAll()
 	{
-		List<City> cities = cityService.getAll();
-		List<CityDto> cityDtos = new ArrayList<CityDto>();
-		for (City city : cities) {
-			cityDtos.add(modelMapper.map(city, CityDto.class));
-		}
-						
-			return cityDtos;	
+		List<CityDto> cities = cityService.getAll();
+		return cities;	
 	}
 	
 	@GetMapping("/search")
 	@ResponseBody
 	public List<CityDto> searchCities(@RequestParam String cityName) {
-		List<City> cities=  cityService.getByName(cityName);
-		
-		List<CityDto> cityDtos = new ArrayList<CityDto>();
-		for (City city: cities) {
-			cityDtos.add(modelMapper.map(city, CityDto.class));
-		}
-					
-		return cityDtos;
+		List<CityDto> cities=  cityService.getByName(cityName);
+		return cities;
 	}
 	
 	@GetMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
 	public CityDto getById(@PathVariable int id)
 	{
-		City city = cityService.getById(id);
-		CityDto cityDto = modelMapper.map(city, CityDto.class);
-		return cityDto;
+		CityDto city = cityService.getById(id);
+		return city;
 	}
 	
 	@PostMapping
 	@ResponseBody
 	public CityDto createCity(@RequestBody CityDto newCityDto) {
-		City city = modelMapper.map(newCityDto, City.class);
-		City newCity= cityService.create(city);
-	    return modelMapper.map(newCity, CityDto.class);
+		CityDto newCity= cityService.create(newCityDto);
+	    return newCity;
 	}
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
@@ -84,9 +65,8 @@ public class CityController {
 	@PutMapping(path="/{id}", produces = "application/json")
 	@ResponseBody
 	public CityDto updateCity(@PathVariable int id, @RequestBody CityDto newCityDto) {
-		City city = modelMapper.map(newCityDto, City.class);		
-		City newCity = cityService.update(id, city);		
-		return modelMapper.map(newCity, CityDto.class);	
+		CityDto newCity = cityService.update(id, newCityDto);		
+		return newCity;	
 	    
 	}
 

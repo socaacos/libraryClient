@@ -1,9 +1,7 @@
 package com.example.library.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.library.dtos.CityDto;
 import com.example.library.dtos.LibraryDto;
-import com.example.library.entities.City;
-import com.example.library.entities.Library;
 import com.example.library.services.LibraryService;
 
 @RestController
@@ -30,50 +25,34 @@ public class LibraryController {
 	@Autowired
 	LibraryService libraryService;
 	
-	@Autowired
-	ModelMapper modelMapper;
-	
 	@GetMapping()
 	@ResponseBody
 	public List<LibraryDto> getAll()
 	{
-		List<Library> libraries = libraryService.getAll();
-		List<LibraryDto> libraryDtos = new ArrayList<LibraryDto>();
-		for (Library library : libraries) {
-			libraryDtos.add(modelMapper.map(library, LibraryDto.class));
-		}
-						
-			return libraryDtos;	
+		List<LibraryDto> libraries = libraryService.getAll();						
+		return libraries;	
 	}
 	
 	@GetMapping("/search")
 	@ResponseBody
 	public List<LibraryDto> searchLibraries(@RequestParam String libraryName) {
-		List<Library> libraries=  libraryService.getByName(libraryName);
-		
-		List<LibraryDto> libraryDtos = new ArrayList<LibraryDto>();
-		for (Library library: libraries) {
-			libraryDtos.add(modelMapper.map(library, LibraryDto.class));
-		}
-					
-		return libraryDtos;
+		List<LibraryDto> libraries=  libraryService.getByName(libraryName);		
+		return libraries;
 	}
 	
 	@GetMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
 	public LibraryDto getById(@PathVariable int id)
 	{
-		Library library= libraryService.getById(id);
-		LibraryDto libraryDto = modelMapper.map(library, LibraryDto.class);
-		return libraryDto;
+		LibraryDto library= libraryService.getById(id);
+		return library;
 	}
 	
 	@PostMapping
 	@ResponseBody
 	public LibraryDto createLibrary(@RequestBody LibraryDto newLibraryDto) {
-		Library library = modelMapper.map(newLibraryDto, Library.class);
-		Library newLibrary= libraryService.create(library);
-	    return modelMapper.map(newLibrary, LibraryDto.class);
+		LibraryDto newLibrary= libraryService.create(newLibraryDto);
+	    return newLibrary;
 	}
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
@@ -87,9 +66,8 @@ public class LibraryController {
 	@PutMapping(path="/{id}", produces = "application/json")
 	@ResponseBody
 	public LibraryDto updateLibrary(@PathVariable int id, @RequestBody LibraryDto newLibraryDto) {
-		Library library = modelMapper.map(newLibraryDto, Library.class);		
-		Library newLibrary = libraryService.update(id, library);		
-		return modelMapper.map(newLibrary, LibraryDto.class);	
+		LibraryDto newLibrary = libraryService.update(id, newLibraryDto);		
+		return newLibrary;	
 	    
 	}
 

@@ -1,9 +1,7 @@
 package com.example.library.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.library.dtos.AuthorDto;
-import com.example.library.entities.Author;
 import com.example.library.services.AuthorService;
 
 @RestController
@@ -27,50 +24,36 @@ public class AuthorController {
 	
 	@Autowired
 	AuthorService authorService;
-	
-	@Autowired
-	ModelMapper modelMapper;
-	
+
 	@GetMapping()
 	@ResponseBody
 	public List<AuthorDto> getAuthors() {
 		
-		List<Author> authors = authorService.getAll();
-		List<AuthorDto> authorDtos = new ArrayList<AuthorDto>();
-		for (Author author : authors) {
-			authorDtos.add(modelMapper.map(author, AuthorDto.class));
-		}
+		List<AuthorDto> authors = authorService.getAll();
+		
 						
-			return authorDtos;
+			return authors;
 	}
 	
 	@GetMapping("/search")
 	@ResponseBody
 	public List<AuthorDto> searchAuthors(@RequestParam String name) {
-		List<Author> authors =  authorService.searchByName(name);
-		
-		List<AuthorDto> authorDtos = new ArrayList<AuthorDto>();
-		for (Author author: authors) {
-			authorDtos.add(modelMapper.map(author, AuthorDto.class));
-		}
-					
-		return authorDtos;
+		List<AuthorDto> authors =  authorService.searchByName(name);
+		return authors;
 	}
 	
 	@GetMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
 	public AuthorDto getAuthorById(@PathVariable int id) {
-		Author author = authorService.getById(id);
-		AuthorDto authorDto = modelMapper.map(author, AuthorDto.class);
-		return authorDto;
+		AuthorDto author = authorService.getById(id);
+		return author;
 	}
 	
 	@PostMapping
 	@ResponseBody
 	public AuthorDto createAuthor(@RequestBody AuthorDto newAuthorDto) {
-		Author author = modelMapper.map(newAuthorDto, Author.class);
-		Author newAuthor = authorService.create(author);
-	    return modelMapper.map(newAuthor, AuthorDto.class);
+		AuthorDto newAuthor = authorService.create(newAuthorDto);
+	    return newAuthor;
 	}
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
@@ -84,9 +67,8 @@ public class AuthorController {
 	@PutMapping(path="/{id}", produces = "application/json")
 	@ResponseBody
 	public AuthorDto updateAuthor(@PathVariable int id, @RequestBody AuthorDto newAuthorDto) {
-		Author author = modelMapper.map(newAuthorDto, Author.class);		
-		Author newAuthor = authorService.update(id, author);		
-		return modelMapper.map(newAuthorDto, AuthorDto.class);	
+		AuthorDto newAuthor = authorService.update(id, newAuthorDto);		
+		return newAuthor;	
 	    
 	}
 

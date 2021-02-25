@@ -3,6 +3,7 @@ package com.example.library.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -10,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.library.entities.Author;
-import com.example.library.entities.Book;
+import com.example.library.dtos.AuthorDto;
+import com.example.library.dtos.BookDto;
 
 @Service
 
@@ -20,52 +21,55 @@ public class BookService {
 	@Autowired
 	RestTemplate restTemplate;
 	
-	String uri = "http://localhost:8080/books/";
-	public List<Book> getAll()
+	@Value("${server.url}")
+	String uri;
+	String b = "/books";
+	
+	public List<BookDto> getAll()
 	{
-		ResponseEntity<List<Book>> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Book>>() {});
-		List<Book> books = responseEntity.getBody();
+		ResponseEntity<List<BookDto>> responseEntity = restTemplate.exchange(uri+b, HttpMethod.GET, null, new ParameterizedTypeReference<List<BookDto>>() {});
+		List<BookDto> books = responseEntity.getBody();
 		return books;
 	}
 	
-	public Book getById(int id)
+	public BookDto getById(int id)
 	{
-		 Book result = restTemplate.getForObject(uri + id, Book.class);
+		BookDto result = restTemplate.getForObject(uri+b+"/" + id, BookDto.class);
 		 return result;
 	}
 	
-	public List<Book> getByPublisherOrTitle(Author author, String title)
+	public List<BookDto> getByPublisherOrTitle(AuthorDto author, String title)
 	{
 		//ne valja!!!
-		ResponseEntity<List<Book>> responseEntity = restTemplate.exchange(uri+"",HttpMethod.GET,null,new ParameterizedTypeReference<List<Book>>() {});
-				List<Book> books = responseEntity.getBody();
+		ResponseEntity<List<BookDto>> responseEntity = restTemplate.exchange(uri+"",HttpMethod.GET,null,new ParameterizedTypeReference<List<BookDto>>() {});
+				List<BookDto> books = responseEntity.getBody();
 				return books;
 	}
 	
-	public List<Book> searchByTitle(String title)
+	public List<BookDto> searchByTitle(String title)
 	{
-		ResponseEntity<List<Book>> responseEntity =  restTemplate.exchange(uri+"search?title=" + title, HttpMethod.GET, null, new ParameterizedTypeReference<List<Book>>() {});
-		List<Book> books = responseEntity.getBody();
+		ResponseEntity<List<BookDto>> responseEntity =  restTemplate.exchange(uri+b+"/search?title=" + title, HttpMethod.GET, null, new ParameterizedTypeReference<List<BookDto>>() {});
+		List<BookDto> books = responseEntity.getBody();
 		return books;
 	}
 	
-	public Book create(Book newBook)
+	public BookDto create(BookDto newBook)
 	{
-		Book result = restTemplate.postForObject(uri, newBook, Book.class);
+		BookDto result = restTemplate.postForObject(uri+b, newBook, BookDto.class);
 		return result;
 
 	}
 	
 	public void delete(int id)
 	{
-		restTemplate.delete(uri + id);
+		restTemplate.delete(uri+b+"/"  + id);
 	}
 	
 	
-	public Book update(int id, Book newBook)
+	public BookDto update(int id, BookDto newBook)
 	{
-		HttpEntity<Book> entity = new HttpEntity<Book>(newBook);
-		ResponseEntity<Book> book = restTemplate.exchange(uri + id, HttpMethod.PUT, entity, Book.class);
+		HttpEntity<BookDto> entity = new HttpEntity<BookDto>(newBook);
+		ResponseEntity<BookDto> book = restTemplate.exchange(uri+b+"/"  + id, HttpMethod.PUT, entity, BookDto.class);
 		return book.getBody();
 	}
 

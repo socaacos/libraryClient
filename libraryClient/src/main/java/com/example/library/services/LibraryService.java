@@ -3,6 +3,7 @@ package com.example.library.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -10,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.library.entities.Library;
+import com.example.library.dtos.LibraryDto;
 
 @Service
 
@@ -18,41 +19,42 @@ public class LibraryService {
 
 	@Autowired
 	RestTemplate restTemplate;
+	@Value("${server.url}")
+	String uri;
+	String l = "/libraries";
 	
-	String uri = "http://localhost:8080/libraries/";
-	
-	public List<Library> getAll()
+	public List<LibraryDto> getAll()
 	{
-		ResponseEntity<List<Library>> libraries = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Library>>() {});
+		ResponseEntity<List<LibraryDto>> libraries = restTemplate.exchange(uri+l, HttpMethod.GET, null, new ParameterizedTypeReference<List<LibraryDto>>() {});
 		return libraries.getBody();
 	}
 	
-	public Library getById(int id)
+	public LibraryDto getById(int id)
 	{
-		return restTemplate.getForObject(uri+id, Library.class);
+		return restTemplate.getForObject(uri+l+"/"+id, LibraryDto.class);
 	}
 	
-	public List<Library> getByName(String libraryName)
+	public List<LibraryDto> getByName(String libraryName)
 	{
-		ResponseEntity<List<Library>> libraries = restTemplate.exchange(uri + "search?libraryName=" + libraryName, HttpMethod.GET, null, new ParameterizedTypeReference<List<Library>>() {
+		ResponseEntity<List<LibraryDto>> libraries = restTemplate.exchange(uri +l+ "/search?libraryName=" + libraryName, HttpMethod.GET, null, new ParameterizedTypeReference<List<LibraryDto>>() {
 		});
 		return libraries.getBody();
 	}
 	
-	public Library create(Library newLibrary)
+	public LibraryDto create(LibraryDto newLibrary)
 	{
-		return restTemplate.postForObject(uri, newLibrary, Library.class);
+		return restTemplate.postForObject(uri+l, newLibrary, LibraryDto.class);
 	}
 	
 	public void delete(int id)
 	{
-		restTemplate.delete(uri+id);
+		restTemplate.delete(uri+l+"/"+id);
 	}
 	
-	public Library update(int id, Library newLibrary)
+	public LibraryDto update(int id, LibraryDto newLibrary)
 	{
-		HttpEntity<Library> entity = new HttpEntity<Library>(newLibrary);
-		ResponseEntity<Library> response = restTemplate.exchange(uri+id, HttpMethod.PUT, entity, Library.class );
+		HttpEntity<LibraryDto> entity = new HttpEntity<LibraryDto>(newLibrary);
+		ResponseEntity<LibraryDto> response = restTemplate.exchange(uri+l+"/"+id, HttpMethod.PUT, entity, LibraryDto.class );
 		return response.getBody();
 	}
 }

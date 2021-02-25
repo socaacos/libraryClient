@@ -3,6 +3,7 @@ package com.example.library.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -10,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.library.entities.Author;
+import com.example.library.dtos.AuthorDto;
 @Service
 
 public class AuthorService {
@@ -18,43 +19,45 @@ public class AuthorService {
 	@Autowired
 	RestTemplate restTemplate;
 	
-	String uri = "http://localhost:8080/authors/";
-
-	public List<Author> getAll()
+	@Value("${server.url}")
+	String uri;
+	String auth = "/authors";
+	
+	public List<AuthorDto> getAll()
 	{
-		ResponseEntity<List<Author>> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Author>>() {});
-		List<Author> authors = responseEntity.getBody();
+		ResponseEntity<List<AuthorDto>> responseEntity = restTemplate.exchange(uri + auth, HttpMethod.GET, null, new ParameterizedTypeReference<List<AuthorDto>>() {});
+		List<AuthorDto> authors = responseEntity.getBody();
 		return authors;
 	}
 	
-	public Author getById(int id)
+	public AuthorDto getById(int id)
 	{
-		Author author = restTemplate.getForObject(uri + id, Author.class);
+		AuthorDto author = restTemplate.getForObject(uri + auth + "/" + id, AuthorDto.class);
 		return author;
 	}
 	
-	public List<Author> searchByName(String name)
+	public List<AuthorDto> searchByName(String name)
 	{
-		ResponseEntity<List<Author>> responseEntity = restTemplate.exchange(uri + "search?name=" + name, HttpMethod.GET, null, new ParameterizedTypeReference<List<Author>>() {});
-		List<Author> authors = responseEntity.getBody();
+		ResponseEntity<List<AuthorDto>> responseEntity = restTemplate.exchange(uri + auth + "/search?name=" + name, HttpMethod.GET, null, new ParameterizedTypeReference<List<AuthorDto>>() {});
+		List<AuthorDto> authors = responseEntity.getBody();
 		return authors;
 	}
 	
-	public Author create(Author newAuthor)
+	public AuthorDto create(AuthorDto newAuthor)
 	{
-		Author result = restTemplate.postForObject(uri, newAuthor, Author.class);
+		AuthorDto result = restTemplate.postForObject(uri + auth, newAuthor, AuthorDto.class);
 		return result;
 	}
 	
 	public void delete(int id)
 	{
-		restTemplate.delete(uri+id);
+		restTemplate.delete(uri+auth + "/" + id);
 	}
 	
-	public Author update(int id, Author newAuthor)
+	public AuthorDto update(int id, AuthorDto newAuthor)
 	{
-		HttpEntity<Author> entity = new HttpEntity<Author>(newAuthor);
-		ResponseEntity<Author> author = restTemplate.exchange(uri + id, HttpMethod.PUT, entity, Author.class);
+		HttpEntity<AuthorDto> entity = new HttpEntity<AuthorDto>(newAuthor);
+		ResponseEntity<AuthorDto> author = restTemplate.exchange(uri + auth + "/" + id, HttpMethod.PUT, entity, AuthorDto.class);
 		return author.getBody();
 	}
 

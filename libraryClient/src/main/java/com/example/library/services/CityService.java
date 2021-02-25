@@ -3,6 +3,7 @@ package com.example.library.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -10,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.library.entities.City;
+import com.example.library.dtos.CityDto;
 
 @Service
 public class CityService {
@@ -18,41 +19,43 @@ public class CityService {
 	@Autowired
 	RestTemplate restTemplate;
 	
-	String uri = "http://localhost:8080/cities/";
+	@Value("${server.url}")
+	String uri;
+	String c = "/cities";
 		
-	public List<City> getAll()
+	public List<CityDto> getAll()
 	{
-		ResponseEntity<List<City>> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<City>>() {});
-		List<City> cities = responseEntity.getBody();
+		ResponseEntity<List<CityDto>> responseEntity = restTemplate.exchange(uri +c , HttpMethod.GET, null, new ParameterizedTypeReference<List<CityDto>>() {});
+		List<CityDto> cities = responseEntity.getBody();
 		return cities;
 	}
 
-	public City getById(int id)
+	public CityDto getById(int id)
 	{
-		City city = restTemplate.getForObject(uri + id, City.class);
+		CityDto city = restTemplate.getForObject(uri + c + "/" + id, CityDto.class);
 		return city;
 	}
 	
-	public List<City> getByName(String cityName)
+	public List<CityDto> getByName(String cityName)
 	{
-		ResponseEntity<List<City>> responseEntity = restTemplate.exchange(uri + "search?cityName=" + cityName, HttpMethod.GET, null, new ParameterizedTypeReference<List<City>>() {});
+		ResponseEntity<List<CityDto>> responseEntity = restTemplate.exchange(uri +c+ "/search?cityName=" + cityName, HttpMethod.GET, null, new ParameterizedTypeReference<List<CityDto>>() {});
 		return responseEntity.getBody();
 	}
 	
 	public void delete(int id)
 	{
-		restTemplate.delete(uri+id);
+		restTemplate.delete(uri+c+"/"+id);
 	}
 	
-	public City create(City newCity)
+	public CityDto create(CityDto newCity)
 	{
-		return restTemplate.postForObject(uri, newCity, City.class);
+		return restTemplate.postForObject(uri +c, newCity, CityDto.class);
 	}
 	
-	public City update(int id, City newCity)
+	public CityDto update(int id, CityDto newCity)
 	{
-		HttpEntity<City> entity = new HttpEntity<City>(newCity);
-		ResponseEntity<City> response =  restTemplate.exchange(uri + id, HttpMethod.PUT, entity, City.class);
+		HttpEntity<CityDto> entity = new HttpEntity<CityDto>(newCity);
+		ResponseEntity<CityDto> response =  restTemplate.exchange(uri+c+"/" + id, HttpMethod.PUT, entity, CityDto.class);
 		return response.getBody();
 	}
 }
