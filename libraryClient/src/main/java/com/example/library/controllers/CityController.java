@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.openapitools.client.ApiException;
+import org.openapitools.client.api.CityControllerApi;
+import org.openapitools.client.model.City;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,15 +20,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.library.dtos.CityDto;
-import com.example.library.entities.City;
-import com.example.library.services.CityService;
+
 
 @RestController
 @RequestMapping("cities")
 public class CityController {
 	
 	@Autowired
-	CityService cityService;
+	CityControllerApi cityApi;
 	
 	@Autowired
 	ModelMapper modelMapper;
@@ -34,49 +36,86 @@ public class CityController {
 	@ResponseBody
 	public List<CityDto> getAll()
 	{
-		List<City> cities = cityService.getAll();
-		List<CityDto> cityDtos = new ArrayList<CityDto>();
-		for (City city : cities) {
-			cityDtos.add(modelMapper.map(city, CityDto.class));
+		List<City> cities;
+		try {
+			cities = cityApi.getAll1();
+			List<CityDto> cityDtos = new ArrayList<CityDto>();
+			for (City city : cities) {
+				cityDtos.add(modelMapper.map(city, CityDto.class));
+			}
+							
+				return cityDtos;	
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-						
-			return cityDtos;	
+		return null;
+		
 	}
 	
 	@GetMapping("/search")
 	@ResponseBody
 	public List<CityDto> searchCities(@RequestParam String cityName) {
-		List<City> cities=  cityService.getByName(cityName);
-		
-		List<CityDto> cityDtos = new ArrayList<CityDto>();
-		for (City city: cities) {
-			cityDtos.add(modelMapper.map(city, CityDto.class));
+		List<City> cities;
+		try {
+			cities = cityApi.searchCities(cityName);
+			List<CityDto> cityDtos = new ArrayList<CityDto>();
+			for (City city: cities) {
+				cityDtos.add(modelMapper.map(city, CityDto.class));
+			}
+						
+			return cityDtos;
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-					
-		return cityDtos;
+		return null;
+		
+		
 	}
 	
 	@GetMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
 	public CityDto getById(@PathVariable int id)
 	{
-		City city = cityService.getById(id);
-		CityDto cityDto = modelMapper.map(city, CityDto.class);
-		return cityDto;
+		City city;
+		try {
+			city = cityApi.getById1(id);
+			CityDto cityDto = modelMapper.map(city, CityDto.class);
+			return cityDto;
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
 	}
 	
 	@PostMapping
 	@ResponseBody
 	public CityDto createCity(@RequestBody CityDto newCityDto) {
 		City city = modelMapper.map(newCityDto, City.class);
-		City newCity= cityService.create(city);
-	    return modelMapper.map(newCity, CityDto.class);
+		City newCity;
+		try {
+			newCity = cityApi.createCity(city);
+			return modelMapper.map(newCity, CityDto.class);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return newCityDto;
+	    
 	}
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
     public String deleteCity(@PathVariable int id) {
-		cityService.delete(id);
+		try {
+			cityApi.deleteCity1(id);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return "Successfuly deleted.";
 		
     }	
@@ -85,8 +124,16 @@ public class CityController {
 	@ResponseBody
 	public CityDto updateCity(@PathVariable int id, @RequestBody CityDto newCityDto) {
 		City city = modelMapper.map(newCityDto, City.class);		
-		City newCity = cityService.update(id, city);		
-		return modelMapper.map(newCity, CityDto.class);	
+		City newCity;
+		try {
+			newCity = cityApi.updateCity(id, city);
+			return modelMapper.map(newCity, CityDto.class);	
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return newCityDto;		
+		
 	    
 	}
 

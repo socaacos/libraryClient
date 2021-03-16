@@ -22,23 +22,6 @@ public class LogsAspect {
 		return handleAspect(jp, "controller");	
 	}
 	
-	@Pointcut("execution(* com.example.library.services.BookService.*(..))")
-	public void serviceFunctions() 
-	{}
-	@Around("serviceFunctions()")
-	public Object logService(ProceedingJoinPoint jp) throws Throwable
-	{
-		return handleAspect(jp, "service");
-	}
-	
-	@Pointcut("execution(* com.example.library.services.BookService.*(..))")
-	public void repository() 
-	{}
-	@Around("repository()")
-	public Object logRepository(ProceedingJoinPoint jp) throws Throwable
-	{
-		return handleAspect(jp, "repository");
-	}
 	
 	private Object handleAspect(ProceedingJoinPoint jp, String description) throws Throwable 
 	{

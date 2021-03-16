@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.openapitools.client.ApiException;
+import org.openapitools.client.api.AuthorControllerApi;
+import org.openapitools.client.model.Author;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.library.dtos.AuthorDto;
-import com.example.library.entities.Author;
-import com.example.library.services.AuthorService;
+import com.example.library.exceptions.BookNotFoundException;
+
 
 @RestController
 @RequestMapping("authors")
@@ -26,7 +29,7 @@ import com.example.library.services.AuthorService;
 public class AuthorController {
 	
 	@Autowired
-	AuthorService authorService;
+	AuthorControllerApi authorApi;
 	
 	@Autowired
 	ModelMapper modelMapper;
@@ -35,48 +38,75 @@ public class AuthorController {
 	@ResponseBody
 	public List<AuthorDto> getAuthors() {
 		
-		List<Author> authors = authorService.getAll();
-		List<AuthorDto> authorDtos = new ArrayList<AuthorDto>();
-		for (Author author : authors) {
-			authorDtos.add(modelMapper.map(author, AuthorDto.class));
+		List<Author> authors;
+		try {
+			authors = authorApi.getAuthors();
+			List<AuthorDto> authorDtos = new ArrayList<AuthorDto>();
+			for (Author author : authors) {
+				authorDtos.add(modelMapper.map(author, AuthorDto.class));
+			}
+							
+				return authorDtos;
+		} catch (ApiException e) {
+			throw new BookNotFoundException();
 		}
-						
-			return authorDtos;
+		
 	}
 	
 	@GetMapping("/search")
 	@ResponseBody
 	public List<AuthorDto> searchAuthors(@RequestParam String name) {
-		List<Author> authors =  authorService.searchByName(name);
+		List<Author> authors;
+		try {
+			authors = authorApi.searchAuthors(name);
+			List<AuthorDto> authorDtos = new ArrayList<AuthorDto>();
+			for (Author author: authors) {
+				authorDtos.add(modelMapper.map(author, AuthorDto.class));
+			}
+						
+			return authorDtos;
+		} catch (ApiException e) {
 		
-		List<AuthorDto> authorDtos = new ArrayList<AuthorDto>();
-		for (Author author: authors) {
-			authorDtos.add(modelMapper.map(author, AuthorDto.class));
+			throw new BookNotFoundException();
 		}
-					
-		return authorDtos;
+		
+		
 	}
 	
 	@GetMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
 	public AuthorDto getAuthorById(@PathVariable int id) {
-		Author author = authorService.getById(id);
-		AuthorDto authorDto = modelMapper.map(author, AuthorDto.class);
-		return authorDto;
-	}
+		Author author;
+		try {
+			author = authorApi.getAuthorById(id);
+			AuthorDto authorDto = modelMapper.map(author, AuthorDto.class);
+			return authorDto;
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
+		}
 	
 	@PostMapping
 	@ResponseBody
 	public AuthorDto createAuthor(@RequestBody AuthorDto newAuthorDto) {
 		Author author = modelMapper.map(newAuthorDto, Author.class);
-		Author newAuthor = authorService.create(author);
-	    return modelMapper.map(newAuthor, AuthorDto.class);
+		Author newAuthor;
+		try {
+			newAuthor = authorApi.createAuthor(author);
+			return modelMapper.map(newAuthor, AuthorDto.class);
+		} catch (ApiException e) {
+			throw new BookNotFoundException();		}
+	    
 	}
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
     public String deleteAuthor(@PathVariable int id) {
-		authorService.delete(id);
+		try {
+			authorApi.deleteAuthor(id);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
 		return "Successfuly deleted.";
 		
     }	
@@ -85,8 +115,14 @@ public class AuthorController {
 	@ResponseBody
 	public AuthorDto updateAuthor(@PathVariable int id, @RequestBody AuthorDto newAuthorDto) {
 		Author author = modelMapper.map(newAuthorDto, Author.class);		
-		Author newAuthor = authorService.update(id, author);		
-		return modelMapper.map(newAuthorDto, AuthorDto.class);	
+		try {
+			Author newAuthor = authorApi.updateAuthor(id, author);
+			System.out.println(newAuthor);
+			return modelMapper.map(newAuthor, AuthorDto.class);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
+		
 	    
 	}
 

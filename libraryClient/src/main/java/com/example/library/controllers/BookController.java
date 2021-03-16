@@ -4,9 +4,11 @@ package com.example.library.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aspectj.lang.annotation.Pointcut;
-import org.mapstruct.factory.Mappers;
 import org.modelmapper.ModelMapper;
+import org.openapitools.client.ApiException;
+import org.openapitools.client.api.BookControllerApi;
+import org.openapitools.client.model.Author;
+import org.openapitools.client.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.library.dtos.AuthorDto;
 import com.example.library.dtos.BookDto;
-import com.example.library.dtos.IBookMapper;
-import com.example.library.entities.Author;
-import com.example.library.entities.Book;
-import com.example.library.services.BookService;
+import com.example.library.exceptions.BookNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BookController {
 	
 	@Autowired
-	BookService bookService;
+	BookControllerApi bookApi;
 	
 	@Autowired
 	ModelMapper modelMapper;
@@ -42,48 +42,73 @@ public class BookController {
 	
 	@GetMapping()
 	@ResponseBody
-	public List<BookDto> getBooks(@RequestParam(required = false) Author author, @RequestParam(required = false) String title) {
+	public List<BookDto> getBooks(@RequestParam(required = false) AuthorDto authorDto, @RequestParam(required = false) String title) {
 		
-		if (author == null && title == null)
+		if (authorDto == null && title == null)
 		{
-			List<Book> books = bookService.getAll();
+			List<Book> books;
+			try {
+				books = bookApi.getBooks();
+				List<BookDto> bookDtos = new ArrayList<BookDto>();
+				for (Object book : books) {
+					System.out.println(book.getClass());
+					System.out.println(book);
+					bookDtos.add(modelMapper.map(book, BookDto.class));
+				}
+							
+				return bookDtos;
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				throw new BookNotFoundException();			}
+			
+		}
+		Author author = modelMapper.map(authorDto, Author.class);
+		List<Book> books;
+		try {
+			books = bookApi.booksByAuthor(author, title);
 			List<BookDto> bookDtos = new ArrayList<BookDto>();
-			for (Object book : books) {
-				System.out.println(book.getClass());
-				System.out.println(book);
+			for (Book book : books) {
 				bookDtos.add(modelMapper.map(book, BookDto.class));
 			}
 						
 			return bookDtos;
-		}
-		List<Book> books = bookService.getByPublisherOrTitle(author, title);
-		List<BookDto> bookDtos = new ArrayList<BookDto>();
-		for (Book book : books) {
-			bookDtos.add(modelMapper.map(book, BookDto.class));
-		}
-					
-		return bookDtos;
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
+		
 	}
 	
 	@GetMapping("/search")
 	@ResponseBody
 	public List<BookDto> searchBooks(@RequestParam String title) {
-		List<Book> books =  bookService.searchByTitle(title);
+		List<Book> books;
+		try {
+			books = bookApi.searchBooks(title);
+			List<BookDto> bookDtos = new ArrayList<BookDto>();
+			for (Book book : books) {
+				bookDtos.add(modelMapper.map(book, BookDto.class));
+			}
+						
+			return bookDtos;
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
 		
-		List<BookDto> bookDtos = new ArrayList<BookDto>();
-		for (Book book : books) {
-			bookDtos.add(modelMapper.map(book, BookDto.class));
-		}
-					
-		return bookDtos;
+		
 	}
 	
 	@GetMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
 	public BookDto getBookById(@PathVariable int id) {
-		Book book = bookService.getById(id);
-		BookDto bookDto = modelMapper.map(book, BookDto.class);
-		return bookDto;
+		Book book;
+		try {
+			book = bookApi.getBookById(id);
+			BookDto bookDto = modelMapper.map(book, BookDto.class);
+			return bookDto;
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
+		
 	}
 
 	
@@ -91,14 +116,24 @@ public class BookController {
 	@ResponseBody
 	public BookDto createBook(@RequestBody BookDto newBookDto) {
 		Book book = modelMapper.map(newBookDto, Book.class);
-		Book newBook = bookService.create(book);
-	    return modelMapper.map(newBook, BookDto.class);
+		Book newBook;
+		try {
+			newBook = bookApi.createBook(book);
+			return modelMapper.map(newBook, BookDto.class);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
+	    
 	}
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
     public String deleteBook(@PathVariable int id) {
-		bookService.delete(id);
+		try {
+			bookApi.deleteBook(id);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
 		return "Successfuly deleted.";
 		
     }	
@@ -107,8 +142,14 @@ public class BookController {
 	@ResponseBody
 	public BookDto updateBook(@PathVariable int id, @RequestBody BookDto newBookDto) {
 		Book book = modelMapper.map(newBookDto, Book.class);		
-		Book newBook = bookService.update(id, book);		
-		return modelMapper.map(newBook, BookDto.class);	
+		Book newBook;
+		try {
+			newBook = bookApi.updateBook(id, book);
+			return modelMapper.map(newBook, BookDto.class);	
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			throw new BookNotFoundException();		}
+		
 	    
 	}
 
