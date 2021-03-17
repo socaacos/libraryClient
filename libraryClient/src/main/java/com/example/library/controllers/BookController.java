@@ -37,18 +37,16 @@ public class BookController {
 	
 	@Autowired
 	ModelMapper modelMapper;
-//	IBookMapper bookMapper = Mappers.getMapper(IBookMapper.class);
-
 	
 	@GetMapping()
 	@ResponseBody
-	public List<BookDto> getBooks(@RequestParam(required = false) AuthorDto authorDto, @RequestParam(required = false) String title) {
+	public List<BookDto> getBooks(@RequestParam(required = false) AuthorDto authorDto, @RequestParam(required = false) String title, @RequestParam(required = false) Integer page) {
 		
 		if (authorDto == null && title == null)
 		{
 			List<Book> books;
 			try {
-				books = bookApi.getBooks();
+				books = bookApi.getBooks(page == null?1:page);
 				List<BookDto> bookDtos = new ArrayList<BookDto>();
 				for (Object book : books) {
 					System.out.println(book.getClass());
@@ -65,7 +63,7 @@ public class BookController {
 		Author author = modelMapper.map(authorDto, Author.class);
 		List<Book> books;
 		try {
-			books = bookApi.booksByAuthor(author, title);
+			books = bookApi.booksByAuthor(author, title, page == null?1:page);
 			List<BookDto> bookDtos = new ArrayList<BookDto>();
 			for (Book book : books) {
 				bookDtos.add(modelMapper.map(book, BookDto.class));
@@ -80,10 +78,10 @@ public class BookController {
 	
 	@GetMapping("/search")
 	@ResponseBody
-	public List<BookDto> searchBooks(@RequestParam String title) {
+	public List<BookDto> searchBooks(@RequestParam String title, @RequestParam(required = false) Integer page) {
 		List<Book> books;
 		try {
-			books = bookApi.searchBooks(title);
+			books = bookApi.searchBooks(title, page == null?1:page);
 			List<BookDto> bookDtos = new ArrayList<BookDto>();
 			for (Book book : books) {
 				bookDtos.add(modelMapper.map(book, BookDto.class));
