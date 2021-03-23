@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -112,10 +113,12 @@ public class BookController {
 	
 	@PostMapping
 	@ResponseBody
-	public BookDto createBook(@RequestBody BookDto newBookDto) {
+	public BookDto createBook(@RequestBody BookDto newBookDto, @RequestHeader("Authorization") String auth) {
+		System.out.println(auth);
 		Book book = modelMapper.map(newBookDto, Book.class);
 		Book newBook;
 		try {
+			bookApi.getApiClient().addDefaultHeader("Authorization", auth);
 			newBook = bookApi.createBook(book);
 			return modelMapper.map(newBook, BookDto.class);
 		} catch (ApiException e) {
@@ -126,8 +129,9 @@ public class BookController {
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
-    public String deleteBook(@PathVariable int id) {
+    public String deleteBook(@PathVariable int id, @RequestHeader("Authorization") String auth) {
 		try {
+			bookApi.getApiClient().addDefaultHeader("Authorization", auth);
 			bookApi.deleteBook(id);
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
@@ -138,10 +142,11 @@ public class BookController {
 	
 	@PutMapping(path="/{id}", produces = "application/json")
 	@ResponseBody
-	public BookDto updateBook(@PathVariable int id, @RequestBody BookDto newBookDto) {
+	public BookDto updateBook(@PathVariable int id, @RequestBody BookDto newBookDto, @RequestHeader("Authorization") String auth) {
 		Book book = modelMapper.map(newBookDto, Book.class);		
 		Book newBook;
 		try {
+			bookApi.getApiClient().addDefaultHeader("Authorization", auth);
 			newBook = bookApi.updateBook(id, book);
 			return modelMapper.map(newBook, BookDto.class);	
 		} catch (ApiException e) {

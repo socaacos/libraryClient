@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -88,21 +89,26 @@ public class AuthorController {
 	
 	@PostMapping
 	@ResponseBody
-	public AuthorDto createAuthor(@RequestBody AuthorDto newAuthorDto) {
+	public AuthorDto createAuthor(@RequestBody AuthorDto newAuthorDto, @RequestHeader("Authorization") String auth) {
+		System.out.println(auth);
 		Author author = modelMapper.map(newAuthorDto, Author.class);
 		Author newAuthor;
 		try {
+			authorApi.getApiClient().addDefaultHeader("Authorization", auth);
 			newAuthor = authorApi.createAuthor(author);
+			
 			return modelMapper.map(newAuthor, AuthorDto.class);
 		} catch (ApiException e) {
+			System.out.println(e.getCode());
 			throw new BookNotFoundException();		}
 	    
 	}
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
-    public String deleteAuthor(@PathVariable int id) {
+    public String deleteAuthor(@PathVariable int id, @RequestHeader("Authorization") String auth) {
 		try {
+			authorApi.getApiClient().addDefaultHeader("Authorization", auth);
 			authorApi.deleteAuthor(id);
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
@@ -113,9 +119,10 @@ public class AuthorController {
 	
 	@PutMapping(path="/{id}", produces = "application/json")
 	@ResponseBody
-	public AuthorDto updateAuthor(@PathVariable int id, @RequestBody AuthorDto newAuthorDto) {
+	public AuthorDto updateAuthor(@PathVariable int id, @RequestBody AuthorDto newAuthorDto, @RequestHeader("Authorization") String auth) {
 		Author author = modelMapper.map(newAuthorDto, Author.class);		
 		try {
+			authorApi.getApiClient().addDefaultHeader("Authorization", auth);
 			Author newAuthor = authorApi.updateAuthor(id, author);
 			System.out.println(newAuthor);
 			return modelMapper.map(newAuthor, AuthorDto.class);

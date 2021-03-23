@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -94,10 +95,11 @@ public class LibraryController {
 	
 	@PostMapping
 	@ResponseBody
-	public LibraryDto createLibrary(@RequestBody LibraryDto newLibraryDto) {
+	public LibraryDto createLibrary(@RequestBody LibraryDto newLibraryDto, @RequestHeader("Authorization") String auth) {
 		Library library = modelMapper.map(newLibraryDto, Library.class);
 		Library newLibrary;
 		try {
+			libraryApi.getApiClient().addDefaultHeader("Authorization", auth);
 			newLibrary = libraryApi.createLibrary(library);
 		    return modelMapper.map(newLibrary, LibraryDto.class);
 
@@ -110,8 +112,9 @@ public class LibraryController {
 	
 	@DeleteMapping(path = "/{id}", produces = "application/json")
 	@ResponseBody
-    public String deleteCity(@PathVariable int id) {
+    public String deleteCity(@PathVariable int id, @RequestHeader("Authorization") String auth) {
 		try {
+			libraryApi.getApiClient().addDefaultHeader("Authorization", auth);
 			libraryApi.deleteCity(id);
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
@@ -123,10 +126,11 @@ public class LibraryController {
 	
 	@PutMapping(path="/{id}", produces = "application/json")
 	@ResponseBody
-	public LibraryDto updateLibrary(@PathVariable int id, @RequestBody LibraryDto newLibraryDto) {
+	public LibraryDto updateLibrary(@PathVariable int id, @RequestBody LibraryDto newLibraryDto, @RequestHeader("Authorization") String auth) {
 		Library library = modelMapper.map(newLibraryDto, Library.class);		
 		Library newLibrary;
 		try {
+			libraryApi.getApiClient().addDefaultHeader("Authorization", auth);
 			newLibrary = libraryApi.updateLibrary(id, library);
 			return modelMapper.map(newLibrary, LibraryDto.class);	
 

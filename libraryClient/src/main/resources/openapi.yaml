@@ -5,6 +5,8 @@ info:
   version: v0
 servers:
 - url: http://localhost:8080
+security:
+  - BasicAuth: []
 paths:
   /books:
     get:
@@ -27,6 +29,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Book'
     post:
+      security:
+        - BasicAuth: []
       tags:
       - book-controller
       operationId: createBook
@@ -170,6 +174,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Author'
     post:
+      security:
+        - BasicAuth: []
       tags:
       - author-controller
       operationId: createAuthor
@@ -492,6 +498,10 @@ paths:
                 items:
                   $ref: '#/components/schemas/City'
 components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
   schemas:
     Book:
       type: object
