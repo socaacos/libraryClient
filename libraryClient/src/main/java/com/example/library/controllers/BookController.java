@@ -1,6 +1,7 @@
 
 package com.example.library.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,13 @@ import org.openapitools.client.api.BookControllerApi;
 import org.openapitools.client.model.Author;
 import org.openapitools.client.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import com.example.library.dtos.AuthorDto;
 import com.example.library.dtos.BookDto;
@@ -37,7 +47,41 @@ public class BookController {
 	BookControllerApi bookApi;
 	
 	@Autowired
+	private DiscoveryClient discoveryClient;
+	
+	@Autowired
 	ModelMapper modelMapper;
+	/*
+	@GetMapping
+	public void getEmployee() throws RestClientException, IOException {
+
+		List<ServiceInstance> instances=discoveryClient.getInstances("EMPLOYEE-ZUUL-SERVICE");
+		ServiceInstance serviceInstance=instances.get(0);
+		System.out.println(serviceInstance.getPort());
+		
+		String baseUrl=serviceInstance.getUri().toString();
+		
+		baseUrl = baseUrl + "/producer/books";
+		
+		System.out.println(baseUrl);
+		
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response=null;
+		try{
+		response=restTemplate.exchange(baseUrl,
+				HttpMethod.GET, getHeaders(),String.class);
+		}catch (Exception ex)
+		{
+			System.out.println(ex);
+		}
+		System.out.println(response.getBody());
+	}
+
+	private static HttpEntity<?> getHeaders() throws IOException {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+		return new HttpEntity<>(headers);
+	}*/
 	
 	@GetMapping()
 	@ResponseBody
