@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.library.aspects.LogsAspect;
+import com.example.library.services.ReportService;
 
 @Configuration
 @EnableAspectJAutoProxy
@@ -52,5 +53,10 @@ public class ApplicationConfiguration {
 	@Bean
 	public LibraryControllerApi libraryApi() {
 	    return new LibraryControllerApi();
+	}
+	
+	@Bean
+	public ReportService reposrtService() {
+		return new ReportService();
 	}
 }

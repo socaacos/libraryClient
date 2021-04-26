@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+	<changeSet author="sophia" id="2">
+		<createTable tableName="report">
+			<column autoIncrement="true" name="id" type="INTEGER">
+				<constraints nullable="false" primaryKey="true" />
+			</column>
+			<column name="request" type="VARCHAR2(15)" />
+			<column name="status" type="INTEGER" />
+		</createTable>
+	</changeSet>
+
+
+</databaseChangeLog>
