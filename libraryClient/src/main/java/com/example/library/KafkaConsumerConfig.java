@@ -21,11 +21,10 @@ import com.example.library.dtos.AuthorDto;
 public class KafkaConsumerConfig {
 
 	@Value("${spring.kafka.consumer.bootstrap-servers}")
-	private String kafkaServer;
+	public  String kafkaServer;
 	
 	@Value("${spring.kafka.consumer.group-id}")
-	private String groupId;
-	
+	public  String groupId;
 	@Bean
 	public ConsumerFactory<String, AuthorDto> consumerConfig()
 	{
